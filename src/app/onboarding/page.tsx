@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
-import { login } from "@/services/auth";
+import { createTeamProfile, getUserProfile } from "@/services/onboarding";
+import { requireAuth } from "@/services/guards";
 
 type SearchParams = Promise<{ error?: string | string[] }>;
 
@@ -12,41 +12,47 @@ function getErrorMessage(error?: string | string[]) {
   return error;
 }
 
-export default function LoginPage({
+export default async function OnboardingPage({
   searchParams,
 }: {
   searchParams: SearchParams;
 }) {
-  async function loginAction(formData: FormData) {
+  await requireAuth();
+
+  const existingProfile = await getUserProfile();
+
+  if (existingProfile) {
+    redirect("/dashboard");
+  }
+
+  async function createTeamProfileAction(formData: FormData) {
     "use server";
 
-    const email = String(formData.get("email") ?? "").trim();
-    const password = String(formData.get("password") ?? "");
+    const teamName = String(formData.get("teamName") ?? "").trim();
+    const displayName = String(formData.get("displayName") ?? "").trim();
 
-    if (!email || !password) {
-      redirect("/login?error=Email%20and%20password%20are%20required.");
+    if (!teamName) {
+      redirect("/onboarding?error=Team%20name%20is%20required.");
     }
 
-    const { error } = await login({ email, password });
+    try {
+      await createTeamProfile({
+        displayName: displayName || undefined,
+        teamName,
+      });
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Unable to create your team profile.";
 
-    if (error) {
-      redirect(`/login?error=${encodeURIComponent(error.message)}`);
+      redirect(`/onboarding?error=${encodeURIComponent(message)}`);
     }
 
     redirect("/dashboard");
   }
 
-  return <LoginForm action={loginAction} searchParams={searchParams} />;
-}
-
-async function LoginForm({
-  action,
-  searchParams,
-}: {
-  action: (formData: FormData) => Promise<void>;
-  searchParams?: SearchParams;
-}) {
-  const params = searchParams ? await searchParams : {};
+  const params = await searchParams;
   const errorMessage = getErrorMessage(params.error);
 
   return (
@@ -55,27 +61,29 @@ async function LoginForm({
         <p className="text-sm font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
           ShiftLog
         </p>
-        <h1 className="mt-3 text-4xl font-semibold">Log In</h1>
+        <h1 className="mt-3 text-4xl font-semibold">Set Up Your Team</h1>
         <p className="mt-4 text-lg text-zinc-600 dark:text-zinc-300">
-          Return to your team workspace and continue shift handovers.
+          Create the first team workspace and manager profile for your account.
         </p>
-        <form action={action} className="mt-8 flex max-w-md flex-col gap-4">
+        <form
+          action={createTeamProfileAction}
+          className="mt-8 flex max-w-md flex-col gap-4"
+        >
           <label className="flex flex-col gap-2 text-sm font-medium">
-            Email
+            Team Name
             <input
               className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-base text-zinc-950 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
-              name="email"
+              name="teamName"
               required
-              type="email"
+              type="text"
             />
           </label>
           <label className="flex flex-col gap-2 text-sm font-medium">
-            Password
+            Display Name
             <input
               className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-base text-zinc-950 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
-              name="password"
-              required
-              type="password"
+              name="displayName"
+              type="text"
             />
           </label>
           {errorMessage ? (
@@ -87,20 +95,9 @@ async function LoginForm({
             className="rounded-md bg-zinc-950 px-4 py-2 text-sm font-semibold text-white dark:bg-zinc-50 dark:text-zinc-950"
             type="submit"
           >
-            Log in
+            Create team
           </button>
         </form>
-        <nav className="mt-6 flex flex-wrap gap-4 text-sm font-medium text-zinc-600 dark:text-zinc-300">
-          <Link className="hover:text-zinc-950 dark:hover:text-zinc-50" href="/">
-            Home
-          </Link>
-          <Link
-            className="hover:text-zinc-950 dark:hover:text-zinc-50"
-            href="/signup"
-          >
-            Create an account
-          </Link>
-        </nav>
       </section>
     </main>
   );
