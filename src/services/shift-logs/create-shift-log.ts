@@ -9,6 +9,7 @@ import {
   shiftTaskEntrySchema,
 } from "@/schemas";
 import { requireProfile } from "@/services/guards";
+import { createManagerFlagsFromShiftLog } from "@/services/manager-flags";
 import { shiftLogSelect, type ShiftLogRow } from "./get-shift-logs";
 
 const createShiftLogInputSchema = z.object({
@@ -86,6 +87,8 @@ export async function createShiftLog(
       );
     }
 
+    await createManagerFlagsFromShiftLog(data);
+
     return data;
   }
 
@@ -100,6 +103,8 @@ export async function createShiftLog(
       `Failed to create shift log: ${error?.message ?? "No shift log was returned."}`,
     );
   }
+
+  await createManagerFlagsFromShiftLog(data);
 
   return data;
 }

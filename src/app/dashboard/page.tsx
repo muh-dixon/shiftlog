@@ -75,6 +75,14 @@ export default async function DashboardPage() {
           >
             Recurring tasks
           </Link>
+          {profile.role === "manager" ? (
+            <Link
+              className="rounded-md bg-zinc-950 px-4 py-2 text-sm font-semibold text-white dark:bg-zinc-50 dark:text-zinc-950"
+              href="/manager-review"
+            >
+              Manager review
+            </Link>
+          ) : null}
         </nav>
         <form action={logoutAction} className="mt-10">
           <button
