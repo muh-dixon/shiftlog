@@ -10,6 +10,7 @@ export {
   customerIncidentSeveritySchema,
   equipmentIssueSchema,
   equipmentIssueSeveritySchema,
+  managerAttentionItemSchema,
   managerAttentionStateSchema,
   shiftLogSchema,
   shiftLogStatusSchema,

@@ -6,6 +6,7 @@ export type {
   CustomerIncidentSeverity,
   EquipmentIssue,
   EquipmentIssueSeverity,
+  ManagerAttentionItem,
   ManagerAttentionState,
   ShiftLog,
   ShiftLogStatus,

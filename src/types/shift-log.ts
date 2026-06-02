@@ -33,6 +33,11 @@ export interface CustomerIncident {
   followUpRequired: boolean;
 }
 
+export interface ManagerAttentionItem {
+  id: string;
+  summary: string;
+}
+
 export interface ShiftLog {
   id: string;
   teamId: string;
@@ -44,6 +49,7 @@ export interface ShiftLog {
   equipmentIssues: EquipmentIssue[];
   customerIncidents: CustomerIncident[];
   notes?: string;
+  managerAttentionItems: ManagerAttentionItem[];
   // Mirrors the product need to surface manager-review items without auth or workflow code yet.
   managerAttentionState: ManagerAttentionState;
   createdAt: string;

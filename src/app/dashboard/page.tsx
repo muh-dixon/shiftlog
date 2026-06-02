@@ -65,6 +65,12 @@ export default async function DashboardPage() {
           </Link>
           <Link
             className="rounded-md bg-zinc-950 px-4 py-2 text-sm font-semibold text-white dark:bg-zinc-50 dark:text-zinc-950"
+            href="/shift-log"
+          >
+            Shift log
+          </Link>
+          <Link
+            className="rounded-md bg-zinc-950 px-4 py-2 text-sm font-semibold text-white dark:bg-zinc-50 dark:text-zinc-950"
             href="/recurring-tasks"
           >
             Recurring tasks

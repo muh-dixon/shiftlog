@@ -2,6 +2,7 @@ import { z } from "zod";
 import type {
   CustomerIncident,
   EquipmentIssue,
+  ManagerAttentionItem,
   ShiftLog,
   ShiftTaskEntry,
 } from "@/types";
@@ -46,6 +47,12 @@ export const customerIncidentSchema: z.ZodType<CustomerIncident> = z.object({
   followUpRequired: z.boolean(),
 });
 
+export const managerAttentionItemSchema: z.ZodType<ManagerAttentionItem> =
+  z.object({
+    id: idSchema,
+    summary: z.string().min(1),
+  });
+
 export const shiftLogSchema: z.ZodType<ShiftLog> = z.object({
   id: idSchema,
   teamId: idSchema,
@@ -57,6 +64,7 @@ export const shiftLogSchema: z.ZodType<ShiftLog> = z.object({
   equipmentIssues: z.array(equipmentIssueSchema),
   customerIncidents: z.array(customerIncidentSchema),
   notes: z.string().min(1).optional(),
+  managerAttentionItems: z.array(managerAttentionItemSchema),
   managerAttentionState: managerAttentionStateSchema,
   createdAt: isoDateTimeSchema,
   updatedAt: isoDateTimeSchema,

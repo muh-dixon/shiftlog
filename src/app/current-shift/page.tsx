@@ -1,9 +1,13 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getShiftLogs } from "@/services/shift-logs";
 import { createShift, getCurrentShift, updateShift } from "@/services/shifts";
 import { requireProfile } from "@/services/guards";
 
-type SearchParams = Promise<{ error?: string | string[] }>;
+type SearchParams = Promise<{
+  error?: string | string[];
+  success?: string | string[];
+}>;
 
 function getErrorMessage(error?: string | string[]) {
   if (Array.isArray(error)) {
@@ -11,6 +15,14 @@ function getErrorMessage(error?: string | string[]) {
   }
 
   return error;
+}
+
+function getSearchMessage(message?: string | string[]) {
+  if (Array.isArray(message)) {
+    return message[0];
+  }
+
+  return message;
 }
 
 function toIsoDateTime(serviceDate: string, time: string) {
@@ -53,8 +65,14 @@ export default async function CurrentShiftPage({
 }) {
   const { profile } = await requireProfile();
   const currentShift = await getCurrentShift();
+  const previousShiftLogs = await getShiftLogs({
+    excludeShiftId: currentShift?.id,
+    limit: 1,
+  });
+  const previousShiftLog = previousShiftLogs[0];
   const params = await searchParams;
   const errorMessage = getErrorMessage(params.error);
+  const successMessage = getSearchMessage(params.success);
   const isManager = profile.role === "manager";
   const today = new Date().toISOString().slice(0, 10);
 
@@ -83,7 +101,9 @@ export default async function CurrentShiftPage({
       redirect(`/current-shift?error=${encodeURIComponent(message)}`);
     }
 
-    redirect("/current-shift");
+    redirect(
+      `/current-shift?success=${encodeURIComponent("Shift created for today.")}`,
+    );
   }
 
   async function updateShiftStatusAction(formData: FormData) {
@@ -103,7 +123,9 @@ export default async function CurrentShiftPage({
       redirect(`/current-shift?error=${encodeURIComponent(message)}`);
     }
 
-    redirect("/current-shift");
+    redirect(
+      `/current-shift?success=${encodeURIComponent("Shift status updated.")}`,
+    );
   }
 
   return (
@@ -120,13 +142,33 @@ export default async function CurrentShiftPage({
               workflow.
             </p>
           </div>
-          <Link
-            className="text-sm font-medium text-zinc-600 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-zinc-50"
-            href="/dashboard"
-          >
-            Back to dashboard
-          </Link>
+          <nav className="flex flex-wrap gap-3 text-sm font-medium">
+            <Link
+              className="text-zinc-600 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-zinc-50"
+              href="/shift-log"
+            >
+              Shift log
+            </Link>
+            <Link
+              className="text-zinc-600 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-zinc-50"
+              href="/recurring-tasks"
+            >
+              Recurring tasks
+            </Link>
+            <Link
+              className="text-zinc-600 hover:text-zinc-950 dark:text-zinc-300 dark:hover:text-zinc-50"
+              href="/dashboard"
+            >
+              Dashboard
+            </Link>
+          </nav>
         </div>
+
+        {successMessage ? (
+          <p className="mt-6 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-200">
+            {successMessage}
+          </p>
+        ) : null}
 
         {errorMessage ? (
           <p className="mt-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-200">
@@ -218,11 +260,53 @@ export default async function CurrentShiftPage({
                   </button>
                 </form>
               ) : null}
+              <Link
+                className="w-fit rounded-md bg-zinc-950 px-4 py-2 text-sm font-semibold text-white dark:bg-zinc-50 dark:text-zinc-950"
+                href="/shift-log"
+              >
+                Create shift log
+              </Link>
             </div>
           ) : (
-            <p className="mt-4 text-zinc-600 dark:text-zinc-300">
-              No active or scheduled shift exists for today.
-            </p>
+            <div className="mt-4 rounded-md border border-dashed border-zinc-300 p-4 dark:border-zinc-700">
+              <p className="font-medium">No current shift is scheduled.</p>
+              <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
+                Managers can create today&apos;s shift below. Staff will be able
+                to submit a shift log once a shift exists.
+              </p>
+            </div>
+          )}
+        </section>
+
+        <section className="mt-8 rounded-md border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+          <h2 className="text-lg font-semibold">Previous Shift Log</h2>
+          {previousShiftLog ? (
+            <div className="mt-4 grid gap-2">
+              <div className="flex flex-wrap justify-between gap-2">
+                <p className="text-sm font-semibold capitalize">
+                  {previousShiftLog.status}
+                </p>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                  {new Date(previousShiftLog.created_at).toLocaleString()}
+                </p>
+              </div>
+              <p className="text-sm text-zinc-600 dark:text-zinc-300">
+                {previousShiftLog.notes ?? "No notes added."}
+              </p>
+              {previousShiftLog.manager_attention_items.length > 0 ? (
+                <p className="text-sm font-medium text-zinc-700 dark:text-zinc-200">
+                  Manager attention requested
+                </p>
+              ) : null}
+            </div>
+          ) : (
+            <div className="mt-4 rounded-md border border-dashed border-zinc-300 p-4 dark:border-zinc-700">
+              <p className="font-medium">No previous handover yet.</p>
+              <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-300">
+                The latest submitted shift log from an earlier shift will appear
+                here once the team starts logging handovers.
+              </p>
+            </div>
           )}
         </section>
 
