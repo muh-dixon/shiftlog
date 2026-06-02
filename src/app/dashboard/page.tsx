@@ -59,6 +59,12 @@ export default async function DashboardPage() {
         <nav className="mt-10 flex flex-wrap gap-3">
           <Link
             className="rounded-md bg-zinc-950 px-4 py-2 text-sm font-semibold text-white dark:bg-zinc-50 dark:text-zinc-950"
+            href="/current-shift"
+          >
+            Current shift
+          </Link>
+          <Link
+            className="rounded-md bg-zinc-950 px-4 py-2 text-sm font-semibold text-white dark:bg-zinc-50 dark:text-zinc-950"
             href="/recurring-tasks"
           >
             Recurring tasks

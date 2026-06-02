@@ -9,6 +9,10 @@ export interface Shift {
   leadUserId?: string;
   type: ShiftType;
   serviceDate: string;
+  // Local scheduled clock time for staff-facing shift planning.
+  startTime: string;
+  // Optional for shifts where the close time is not known yet.
+  endTime?: string;
   startsAt: string;
   endsAt?: string;
   status: ShiftStatus;
