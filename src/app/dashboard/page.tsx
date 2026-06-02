@@ -83,6 +83,14 @@ export default async function DashboardPage() {
               Manager review
             </Link>
           ) : null}
+          {profile.role === "manager" ? (
+            <Link
+              className="rounded-md bg-zinc-950 px-4 py-2 text-sm font-semibold text-white dark:bg-zinc-50 dark:text-zinc-950"
+              href="/team"
+            >
+              Team management
+            </Link>
+          ) : null}
         </nav>
         <form action={logoutAction} className="mt-10">
           <button
