@@ -81,17 +81,21 @@ including:
 
 ## Security Considerations
 
-ShiftLog uses authenticated sessions and database-level access controls to
-protect application data.
+ShiftLog uses Supabase authentication and database-level Row Level Security
+to restrict application data by authenticated user, team membership, and role.
 
 Security-related design decisions include:
 
-- Supabase authentication for user identity
-- Row Level Security for database access
-- Role-based manager functionality
+- Supabase Auth for user identity
+- User profiles aligned with authenticated user IDs
+- Team-scoped Row Level Security policies
+- Manager-only write permissions for recurring tasks and shifts
+- Cross-team access restrictions enforced at the database layer
 - Protected application routes
-- Team-aware application workflows
 - Environment variables for sensitive configuration
+
+The current authorization model is intentionally scoped to the MVP and can be
+expanded with more granular role and permission rules as the application grows.
 
 ## Development Status
 
