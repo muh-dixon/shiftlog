@@ -82,7 +82,7 @@ including:
 ## Security Considerations
 
 ShiftLog uses authenticated sessions and database-level access controls to
-protect team data.
+protect application data.
 
 Security-related design decisions include:
 
@@ -90,8 +90,7 @@ Security-related design decisions include:
 - Row Level Security for database access
 - Role-based manager functionality
 - Protected application routes
-- Team-scoped application workflows
-- Server-side handling of privileged operations where required
+- Team-aware application workflows
 - Environment variables for sensitive configuration
 
 ## Development Status
